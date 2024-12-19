@@ -57,7 +57,7 @@ public class FlinkSourceUtil {
     }
 
     //获取MySqlSource
-    public static MySqlSource<String> getMySqlSource(String database,String tableName){
+    public static MySqlSource<String> getMySqlSource(String database, String tableName){
         Properties props = new Properties();
         props.setProperty("useSSL", "false");
         props.setProperty("allowPublicKeyRetrieval", "true");

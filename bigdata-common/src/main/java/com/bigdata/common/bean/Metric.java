@@ -6,6 +6,8 @@ public class Metric {
 
     private Integer id;
 
+    private Long timestamp;
+
     private Integer cloudId;
 
     private String ip;
@@ -18,6 +20,14 @@ public class Metric {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Integer getCloudId() {
@@ -47,8 +57,9 @@ public class Metric {
     public Metric() {
     }
 
-    public Metric(Integer id, Integer cloudId, String ip, List<String> ports) {
+    public Metric(Integer id, Long timestamp, Integer cloudId, String ip, List<String> ports) {
         this.id = id;
+        this.timestamp = timestamp;
         this.cloudId = cloudId;
         this.ip = ip;
         this.ports = ports;
@@ -58,6 +69,7 @@ public class Metric {
     public String toString() {
         return "Metric{" +
                 "id=" + id +
+                ", timestamp=" + timestamp +
                 ", cloudId=" + cloudId +
                 ", ip='" + ip + '\'' +
                 ", ports=" + ports +

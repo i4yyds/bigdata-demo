@@ -3,21 +3,21 @@ package com.bigdata.common.constant;
 /**
  * @author i4yyds
  * @date 2024/12/10
- * 电商实时数仓常量类
+ * 运维大数据平台
  */
 public class Constant {
 
-    public static final String LOCAL_HOST = "192.168.0.188";
+    public static final String LOCAL_HOST = "192.168.200.193";
 
     public static final String KAFKA_BROKERS = LOCAL_HOST + ":9092," + LOCAL_HOST + ":9093," + LOCAL_HOST + ":9094";
 
-    public static final String TOPIC_PORT = "topic_port";
+    public static final String TOPIC_PORT = "topic_port_strategy";
     public static final String TOPIC_LOG = "topic_log";
 
     public static final String MYSQL_HOST = LOCAL_HOST;
     public static final int MYSQL_PORT = 3306;
     public static final String MYSQL_USER_NAME = "root";
-    public static final String MYSQL_PASSWORD = "123456";
+    public static final String MYSQL_PASSWORD = "yyds";
     public static final String HBASE_NAMESPACE = "gmall2024";
 
     public static final String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";

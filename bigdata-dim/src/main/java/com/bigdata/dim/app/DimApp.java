@@ -1,9 +1,14 @@
 package com.bigdata.dim.app;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.bigdata.common.base.BaseApp;
+import com.bigdata.common.bean.Metric;
+import com.bigdata.common.bean.PortStrategy;
 import com.bigdata.common.constant.Constant;
+import com.bigdata.common.util.FlinkSourceUtil;
+import com.bigdata.common.util.StringUtil;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -19,6 +24,8 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.hadoop.hbase.client.Connection;
+
+import java.util.List;
 
 /**
  * @author i4yyds
@@ -87,8 +94,8 @@ public class DimApp extends BaseApp {
         //TODO 对业务流中数据类型进行转换并进行简单的ETL    jsonStr->jsonObj
         SingleOutputStreamOperator<JSONObject> jsonObjDS = etl(kafkaStrDS);
 
-//        //TODO 使用FlinkCDC读取配置表中的配置信息
-//        SingleOutputStreamOperator<TableProcessDim> tpDS = readTableProcess(env);
+        //TODO 使用FlinkCDC读取配置表中的配置信息
+        SingleOutputStreamOperator<PortStrategy> tpDS = readTableProcess(env);
 //
 //        //TODO 根据配置表中的配置信息到HBase中执行建表或者删除表操作
 //        tpDS = createHBaseTable(tpDS);
@@ -164,45 +171,51 @@ public class DimApp extends BaseApp {
 //        return tpDS;
 //    }
 //
-//    private static SingleOutputStreamOperator<TableProcessDim> readTableProcess(StreamExecutionEnvironment env) {
-//        //5.1 创建MySQLSource对象
-//        MySqlSource<String> mySqlSource = FlinkSourceUtil.getMySqlSource("gmall2024_config", "table_process_dim");
-//        //5.2 读取数据 封装为流
-//        DataStreamSource<String> mysqlStrDS = env
-//                .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "mysql_source")
-//                .setParallelism(1);
-//        //"op":"r": {"before":null,"after":{"source_table":"activity_info","sink_table":"dim_activity_info","sink_family":"info","sink_columns":"id,activity_name,activity_type,activity_desc,start_time,end_time,create_time","sink_row_key":"id"},"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":0,"snapshot":"false","db":"gmall2024_config","sequence":null,"table":"table_process_dim","server_id":0,"gtid":null,"file":"","pos":0,"row":0,"thread":null,"query":null},"op":"r","ts_ms":1716812196180,"transaction":null}
-//        //"op":"c": {"before":null,"after":{"source_table":"a","sink_table":"a","sink_family":"a","sink_columns":"aaa","sink_row_key":"aa"},"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":1716812267000,"snapshot":"false","db":"gmall2024_config","sequence":null,"table":"table_process_dim","server_id":1,"gtid":null,"file":"mysql-bin.000002","pos":11423611,"row":0,"thread":14,"query":null},"op":"c","ts_ms":1716812265698,"transaction":null}
-//        //"op":"u": {"before":{"source_table":"a","sink_table":"a","sink_family":"a","sink_columns":"aaa","sink_row_key":"aa"},"after":{"source_table":"a","sink_table":"a","sink_family":"a","sink_columns":"aaabbb","sink_row_key":"aa"},"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":1716812311000,"snapshot":"false","db":"gmall2024_config","sequence":null,"table":"table_process_dim","server_id":1,"gtid":null,"file":"mysql-bin.000002","pos":11423960,"row":0,"thread":14,"query":null},"op":"u","ts_ms":1716812310215,"transaction":null}
-//        //"op":"d": {"before":{"source_table":"a","sink_table":"a","sink_family":"a","sink_columns":"aaabbb","sink_row_key":"aa"},"after":null,"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":1716812341000,"snapshot":"false","db":"gmall2024_config","sequence":null,"table":"table_process_dim","server_id":1,"gtid":null,"file":"mysql-bin.000002","pos":11424323,"row":0,"thread":14,"query":null},"op":"d","ts_ms":1716812340475,"transaction":null}
-//
-//
-//        //mysqlStrDS.print();
-//
+    private static SingleOutputStreamOperator<PortStrategy> readTableProcess(StreamExecutionEnvironment env) {
+        //5.1 创建MySQLSource对象
+        MySqlSource<String> mySqlSource = FlinkSourceUtil.getMySqlSource("monitor", "port_strategy");
+        //5.2 读取数据 封装为流
+        DataStreamSource<String> mysqlStrDS = env
+                .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "mysql_source")
+                .setParallelism(1);
+//        1> {"before":null,"after":{"id":2,"cloud_id":0,"ip":"192.168.0.2","port":"23"},"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":1734588760000,"snapshot":"false","db":"monitor","sequence":null,"table":"port_strategy","server_id":1,"gtid":null,"file":"mysql-bin.000001","pos":360,"row":0,"thread":12,"query":null},"op":"c","ts_ms":1734588760131,"transaction":null}
+//        2> {"before":{"id":2,"cloud_id":0,"ip":"192.168.0.2","port":"23"},"after":{"id":2,"cloud_id":0,"ip":"192.168.0.2","port":"22"},"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":1734588777000,"snapshot":"false","db":"monitor","sequence":null,"table":"port_strategy","server_id":1,"gtid":null,"file":"mysql-bin.000001","pos":656,"row":0,"thread":12,"query":null},"op":"u","ts_ms":1734588777424,"transaction":null}
+//        3> {"before":{"id":2,"cloud_id":0,"ip":"192.168.0.2","port":"22"},"after":null,"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":1734588794000,"snapshot":"false","db":"monitor","sequence":null,"table":"port_strategy","server_id":1,"gtid":null,"file":"mysql-bin.000001","pos":977,"row":0,"thread":12,"query":null},"op":"d","ts_ms":1734588794827,"transaction":null}
+
+        //"op":"r": {"before":null,"after":{"source_table":"activity_info","sink_table":"dim_activity_info","sink_family":"info","sink_columns":"id,activity_name,activity_type,activity_desc,start_time,end_time,create_time","sink_row_key":"id"},"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":0,"snapshot":"false","db":"gmall2024_config","sequence":null,"table":"table_process_dim","server_id":0,"gtid":null,"file":"","pos":0,"row":0,"thread":null,"query":null},"op":"r","ts_ms":1716812196180,"transaction":null}
+        //"op":"c": {"before":null,"after":{"source_table":"a","sink_table":"a","sink_family":"a","sink_columns":"aaa","sink_row_key":"aa"},"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":1716812267000,"snapshot":"false","db":"gmall2024_config","sequence":null,"table":"table_process_dim","server_id":1,"gtid":null,"file":"mysql-bin.000002","pos":11423611,"row":0,"thread":14,"query":null},"op":"c","ts_ms":1716812265698,"transaction":null}
+        //"op":"u": {"before":{"source_table":"a","sink_table":"a","sink_family":"a","sink_columns":"aaa","sink_row_key":"aa"},"after":{"source_table":"a","sink_table":"a","sink_family":"a","sink_columns":"aaabbb","sink_row_key":"aa"},"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":1716812311000,"snapshot":"false","db":"gmall2024_config","sequence":null,"table":"table_process_dim","server_id":1,"gtid":null,"file":"mysql-bin.000002","pos":11423960,"row":0,"thread":14,"query":null},"op":"u","ts_ms":1716812310215,"transaction":null}
+        //"op":"d": {"before":{"source_table":"a","sink_table":"a","sink_family":"a","sink_columns":"aaabbb","sink_row_key":"aa"},"after":null,"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":1716812341000,"snapshot":"false","db":"gmall2024_config","sequence":null,"table":"table_process_dim","server_id":1,"gtid":null,"file":"mysql-bin.000002","pos":11424323,"row":0,"thread":14,"query":null},"op":"d","ts_ms":1716812340475,"transaction":null}
+
+
+        mysqlStrDS.print();
+
+        return null;
+
 //        //TODO 6.对配置流中的数据类型进行转换  jsonStr->实体类对象
-//        SingleOutputStreamOperator<TableProcessDim> tpDS = mysqlStrDS.map(
-//                new MapFunction<String, TableProcessDim>() {
+//        SingleOutputStreamOperator<PortStrategy> tpDS = mysqlStrDS.map(
+//                new MapFunction<String, PortStrategy>() {
 //                    @Override
-//                    public TableProcessDim map(String jsonStr) throws Exception {
+//                    public PortStrategy map(String jsonStr) throws Exception {
 //                        //为了处理方便，先将jsonStr转换为jsonObj
 //                        JSONObject jsonObj = JSON.parseObject(jsonStr);
 //                        String op = jsonObj.getString("op");
-//                        TableProcessDim tableProcessDim = null;
+//                        PortStrategy tableProcessDim = null;
 //                        if("d".equals(op)){
 //                            //对配置表进行了一次删除操作   从before属性中获取删除前的配置信息
-//                            tableProcessDim = jsonObj.getObject("before", TableProcessDim.class);
+//                            tableProcessDim = jsonObj.getObject("before", PortStrategy.class);
 //                        }else{
 //                            //对配置表进行了读取、添加、修改操作   从after属性中获取最新的配置信息
-//                            tableProcessDim = jsonObj.getObject("after", TableProcessDim.class);
+//                            tableProcessDim = jsonObj.getObject("after", PortStrategy.class);
 //                        }
 //                        tableProcessDim.setOp(op);
 //                        return tableProcessDim;
 //                    }
 //                }
 //        ).setParallelism(1);
-//        //tpDS.print();
+        //tpDS.print();
 //        return tpDS;
-//    }
+    }
 
     private static SingleOutputStreamOperator<JSONObject> etl(DataStreamSource<String> kafkaStrDS) {
 
@@ -211,28 +224,21 @@ public class DimApp extends BaseApp {
                     @Override
                     public void processElement(String jsonStr, ProcessFunction<String, JSONObject>.Context ctx, Collector<JSONObject> out) throws Exception {
 
+//                        Metric metric = JSON.parseObject(jsonStr, Metric.class);
                         JSONObject jsonObj = JSON.parseObject(jsonStr);
-                        System.out.println("print");
-                        System.out.println(jsonObj.toString());
-                        String db = jsonObj.getString("database");
-                        String type = jsonObj.getString("type");
-                        String data = jsonObj.getString("data");
+//                        Integer cloudId = jsonObj.getInteger("cloudId");
+//                        String ip = jsonObj.getString("ip");
+//                        JSONArray ports = jsonObj.getJSONArray("ports");
+//                        List<String> portList = StringUtil.JsonArray2ListStr(ports);
 
-                        if ("gmall2024".equals(db)
-                                && ("insert".equals(type)
-                                || "update".equals(type)
-                                || "delete".equals(type)
-                                || "bootstrap-insert".equals(type))
-                                && data != null
-                                && data.length() > 2
-                        ) {
+                        if (jsonObj != null) {
                             out.collect(jsonObj);
                         }
                     }
                 }
         );
 
-        //jsonObjDS.print();
+        jsonObjDS.print();
         return jsonObjDS;
     }
 }

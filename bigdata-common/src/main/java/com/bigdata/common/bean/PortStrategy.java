@@ -1,6 +1,6 @@
 package com.bigdata.common.bean;
 
-public class Strategy {
+public class PortStrategy {
 
     private Integer id;
 
@@ -42,10 +42,10 @@ public class Strategy {
         this.port = port;
     }
 
-    public Strategy() {
+    public PortStrategy() {
     }
 
-    public Strategy(Integer id, Integer cloudId, String ip, String port) {
+    public PortStrategy(Integer id, Integer cloudId, String ip, String port) {
         this.id = id;
         this.cloudId = cloudId;
         this.ip = ip;
