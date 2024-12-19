@@ -10,6 +10,8 @@ public class PortStrategy {
 
     private String port;
 
+    private String op;
+
     public Integer getId() {
         return id;
     }
@@ -42,23 +44,33 @@ public class PortStrategy {
         this.port = port;
     }
 
+    public String getOp() {
+        return op;
+    }
+
+    public void setOp(String op) {
+        this.op = op;
+    }
+
     public PortStrategy() {
     }
 
-    public PortStrategy(Integer id, Integer cloudId, String ip, String port) {
+    public PortStrategy(Integer id, Integer cloudId, String ip, String port, String op) {
         this.id = id;
         this.cloudId = cloudId;
         this.ip = ip;
         this.port = port;
+        this.op = op;
     }
 
     @Override
     public String toString() {
-        return "Strategy{" +
+        return "PortStrategy{" +
                 "id=" + id +
                 ", cloudId=" + cloudId +
                 ", ip='" + ip + '\'' +
                 ", port='" + port + '\'' +
+                ", op='" + op + '\'' +
                 '}';
     }
 }

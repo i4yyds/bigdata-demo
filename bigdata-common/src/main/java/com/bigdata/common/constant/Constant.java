@@ -7,7 +7,7 @@ package com.bigdata.common.constant;
  */
 public class Constant {
 
-    public static final String LOCAL_HOST = "192.168.200.193";
+    public static final String LOCAL_HOST = "192.168.0.188";
 
     public static final String KAFKA_BROKERS = LOCAL_HOST + ":9092," + LOCAL_HOST + ":9093," + LOCAL_HOST + ":9094";
 
@@ -18,7 +18,7 @@ public class Constant {
     public static final int MYSQL_PORT = 3306;
     public static final String MYSQL_USER_NAME = "root";
     public static final String MYSQL_PASSWORD = "yyds";
-    public static final String HBASE_NAMESPACE = "gmall2024";
+    public static final String HBASE_NAMESPACE = "monitor";
 
     public static final String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
     public static final String MYSQL_URL = "jdbc:mysql://" + MYSQL_HOST + ":" + MYSQL_PORT + "?useSSL=false";

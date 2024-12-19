@@ -18,7 +18,7 @@ server-id=1
 mysql -u root -p
 建库表
 create database monitor;
-create table strategy
+create table port_strategy
 (
     id       int auto_increment primary key,
     cloud_id int         null,
@@ -47,6 +47,19 @@ kafka-topics.sh --delete --zookeeper 192.168.200.193:2181 --topic topic_port_str
 kafka-topics.sh --create --zookeeper 192.168.200.193:2181 --replication-factor 2 --partitions 1 --topic topic_port_strategy
 消费
 kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic topic_port_strategy --from-beginning
+```
+
+hbase
+
+```bash
+安装
+docker pull harisekhon/hbase
+docker run -d -p 8080:8080 -p 8085:8085 -p 9090:9090 -p 9095:9095 -p 16000:16000 -p 16010:16010 -p 16201:16201 -p 16301:16301  -p 16030:16030 -p 16020:16020 --name hbase harisekhon/hbase
+使用
+hbase shell
+create_namespace "monitor"
+list_namespace
+list_namespace_tables "monitor"
 ```
 
 ## 安装
