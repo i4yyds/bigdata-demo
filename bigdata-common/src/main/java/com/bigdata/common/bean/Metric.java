@@ -1,33 +1,28 @@
 package com.bigdata.common.bean;
 
+
 import java.util.List;
 
 public class Metric {
 
-    private Integer id;
+    private String id; // uuid.NewV4()
 
-    private Long timestamp;
+    private Integer cloudId; // 网络区域
 
-    private Integer cloudId;
+    private String ip; // ip地址
 
-    private String ip;
+    private Long tms; // time.Now().Unix()
 
-    private List<String> ports;
+    private String time; // time.Now().Format("2001-10-01 19:00:00")
 
-    public Integer getId() {
+    private List<Value> value;
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
-    }
-
-    public Long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
     }
 
     public Integer getCloudId() {
@@ -46,33 +41,51 @@ public class Metric {
         this.ip = ip;
     }
 
-    public List<String> getPorts() {
-        return ports;
+    public Long getTms() {
+        return tms;
     }
 
-    public void setPorts(List<String> ports) {
-        this.ports = ports;
+    public void setTms(Long tms) {
+        this.tms = tms;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public List<Value> getValue() {
+        return value;
+    }
+
+    public void setValue(List<Value> value) {
+        this.value = value;
     }
 
     public Metric() {
     }
 
-    public Metric(Integer id, Long timestamp, Integer cloudId, String ip, List<String> ports) {
+    public Metric(String id, Integer cloudId, String ip, Long tms, String time, List<Value> value) {
         this.id = id;
-        this.timestamp = timestamp;
         this.cloudId = cloudId;
         this.ip = ip;
-        this.ports = ports;
+        this.tms = tms;
+        this.time = time;
+        this.value = value;
     }
 
     @Override
     public String toString() {
         return "Metric{" +
-                "id=" + id +
-                ", timestamp=" + timestamp +
+                "id='" + id + '\'' +
                 ", cloudId=" + cloudId +
                 ", ip='" + ip + '\'' +
-                ", ports=" + ports +
+                ", tms=" + tms +
+                ", time='" + time + '\'' +
+                ", value=" + value +
                 '}';
     }
 }

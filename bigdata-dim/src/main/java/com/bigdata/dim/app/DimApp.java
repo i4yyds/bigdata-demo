@@ -97,11 +97,10 @@ public class DimApp extends BaseApp {
 
         //TODO 根据配置表中的配置信息到HBase中执行建表或者删除表操作
         tpDS = createHBaseTable(tpDS);
-//
-//        //tpDS.print();
+
 //        //TODO 过滤维度数据
-//        SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> dimDS = connect(tpDS, jsonObjDS);
-//
+//        SingleOutputStreamOperator<Tuple2<JSONObject, PortStrategy>> dimDS = connect(tpDS, jsonObjDS);
+
 //        //TODO 将维度数据同步到HBase表中
 //        //({"tm_name":"Redmi","id":1,"type":"update"},TableProcessDim(sourceTable=base_trademark, sinkTable=dim_base_trademark, sinkColumns=id,tm_name, sinkFamily=info, sinkRowKey=id, op=r))
 //        dimDS.print();
@@ -111,18 +110,18 @@ public class DimApp extends BaseApp {
 //    private static void writeToHBase(SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> dimDS) {
 //        dimDS.addSink(new HBaseSinkFunction());
 //    }
-//
-//    private static SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> connect(SingleOutputStreamOperator<TableProcessDim> tpDS, SingleOutputStreamOperator<JSONObject> jsonObjDS) {
+
+//    private static SingleOutputStreamOperator<Tuple2<JSONObject, PortStrategy>> connect(SingleOutputStreamOperator<PortStrategy> tpDS, SingleOutputStreamOperator<JSONObject> jsonObjDS) {
 //        //将配置流中的配置信息进行广播---broadcast
-//        MapStateDescriptor<String, TableProcessDim> mapStateDescriptor
-//                = new MapStateDescriptor<String, TableProcessDim>("mapStateDescriptor",String.class, TableProcessDim.class);
-//        BroadcastStream<TableProcessDim> broadcastDS = tpDS.broadcast(mapStateDescriptor);
+//        MapStateDescriptor<String, PortStrategy> mapStateDescriptor
+//                = new MapStateDescriptor<String, PortStrategy>("mapStateDescriptor",String.class, PortStrategy.class);
+//        BroadcastStream<PortStrategy> broadcastDS = tpDS.broadcast(mapStateDescriptor);
 //
 //        //将主流业务数据和广播流配置信息进行关联---connect
-//        BroadcastConnectedStream<JSONObject, TableProcessDim> connectDS = jsonObjDS.connect(broadcastDS);
+//        BroadcastConnectedStream<JSONObject, PortStrategy> connectDS = jsonObjDS.connect(broadcastDS);
 //
 //        //处理关联后的数据(判断是否为维度)
-//        SingleOutputStreamOperator<Tuple2<JSONObject,TableProcessDim>> dimDS = connectDS.process(
+//        SingleOutputStreamOperator<Tuple2<JSONObject, PortStrategy>> dimDS = connectDS.process(
 //                new TableProcessFunction(mapStateDescriptor)
 //        );
 //        return dimDS;
