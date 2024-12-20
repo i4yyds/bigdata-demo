@@ -7,7 +7,7 @@ package com.bigdata.common.constant;
  */
 public class Constant {
 
-    public static final String LOCAL_HOST = "192.168.0.188";
+    public static final String LOCAL_HOST = "192.168.200.193";
 
     public static final String KAFKA_BROKERS = LOCAL_HOST + ":9092," + LOCAL_HOST + ":9093," + LOCAL_HOST + ":9094";
 

@@ -149,16 +149,16 @@ public class DimApp extends BaseApp {
                         //获取对配置表进行的操作的类型
                         String op = tp.getOp();
                         //获取Hbase中维度表的表名
-                        String key = "port_monitor" + "#" + tp.getCloudId() + "#" + tp.getIp() + "#" + tp.getPort();
+                        String key = "port_monitor" + "-" + tp.getCloudId() + "-" + tp.getIp() + "-" + tp.getPort();
                         //获取在HBase中建表的列族
-                        String value = "1";
-                        if("d".equals(op)){
+                        String[] value = "a".split(",");
+                        if ("d".equals(op)) {
                             //从配置表中删除了一条数据  将hbase中对应的表删除掉
                             HBaseUtil.dropHBaseTable(hbaseConn, Constant.HBASE_NAMESPACE, key);
-                        }else if("r".equals(op) || "c".equals(op)){
+                        } else if ("r".equals(op) || "c".equals(op)) {
                             //从配置表中读取了一条数据或者向配置表中添加了一条配置   在hbase中执行建表
                             HBaseUtil.createHBaseTable(hbaseConn, Constant.HBASE_NAMESPACE, key, value);
-                        } else{
+                        } else {
                             //对配置表中的配置信息进行了修改   先从hbase中将对应的表删除掉，再创建新表
                             HBaseUtil.dropHBaseTable(hbaseConn, Constant.HBASE_NAMESPACE, key);
                             HBaseUtil.createHBaseTable(hbaseConn, Constant.HBASE_NAMESPACE, key, value);

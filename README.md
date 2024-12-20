@@ -52,14 +52,13 @@ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic topic_port_s
 hbase
 
 ```bash
-安装
 docker pull harisekhon/hbase
-docker run -d -p 8080:8080 -p 8085:8085 -p 9090:9090 -p 9095:9095 -p 16000:16000 -p 16010:16010 -p 16201:16201 -p 16301:16301  -p 16030:16030 -p 16020:16020 --name hbase harisekhon/hbase
+docker run -d -p 2182:2181 -p 8080:8080 -p 8085:8085 -p 9090:9090 -p 9095:9095 -p 16000:16000 -p 16010:16010 -p 16201:16201 -p 16301:16301  -p 16030:16030 -p 16020:16020 --name hbase harisekhon/hbase
+打开 http://localhost:16010/, 点击RegionServers里面的ServerName, 找到报错7502efceaf8f
+本地IP和报错加入到 C:\Windows\System32\drivers\etc\hosts 192.168.200.193 7502efceaf8f
 使用
 hbase shell
-create_namespace "monitor"
-list_namespace
-list_namespace_tables "monitor"
+create_namespace "monitor"monitor"
 ```
 
 ## 安装

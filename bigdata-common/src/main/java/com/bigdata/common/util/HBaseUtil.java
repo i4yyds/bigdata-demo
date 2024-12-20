@@ -17,15 +17,16 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author Felix
- * @date 2024/5/27
+ * @author i4yyds
+ * @date 2024/12/19
  * 操作HBase的工具类
  */
 public class HBaseUtil {
     //获取Hbase连接
     public static Connection getHBaseConnection() throws IOException {
         Configuration conf = new Configuration();
-        conf.set("hbase.zookeeper.quorum", "localhost");
+        conf.set("hbase.zookeeper.quorum", Constant.LOCAL_HOST);
+        conf.set("hbase.zookeeper.property.clientPort", "2182");
 
         Connection hbaseConn = ConnectionFactory.createConnection(conf);
         return hbaseConn;
@@ -42,6 +43,7 @@ public class HBaseUtil {
     public static AsyncConnection getHBaseAsyncConnection(){
         Configuration conf = new Configuration();
         conf.set("hbase.zookeeper.quorum", Constant.LOCAL_HOST);
+        conf.set("hbase.zookeeper.property.clientPort", "2182");
 
         try {
             AsyncConnection asyncConnection = ConnectionFactory.createAsyncConnection(conf).get();
@@ -71,7 +73,6 @@ public class HBaseUtil {
         try (Admin admin = hbaseConn.getAdmin()) {
             TableName tableNameObj = TableName.valueOf(namespace, tableName);
             if (admin.tableExists(tableNameObj)) {
-                System.out.println("表空间" + namespace + "下的表" + tableName + "已存在");
                 return;
             }
             TableDescriptorBuilder tableDescriptorBuilder = TableDescriptorBuilder.newBuilder(tableNameObj);
@@ -84,6 +85,7 @@ public class HBaseUtil {
 
             System.out.println("表空间" + namespace + "下的表" + tableName + "创建成功");
         } catch (IOException e) {
+            System.out.println(e.toString());
             throw new RuntimeException(e);
         }
     }
@@ -176,7 +178,7 @@ public class HBaseUtil {
                     String columnName = Bytes.toString(CellUtil.cloneQualifier(cell));
                     String columnValue = Bytes.toString(CellUtil.cloneValue(cell));
                     if(defaultIsUToC){
-                        columnName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL,columnName);
+                        columnName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, columnName);
                     }
                     BeanUtils.setProperty(obj,columnName,columnValue);
                 }
@@ -220,10 +222,9 @@ public class HBaseUtil {
 
     public static void main(String[] args) throws Exception {
         Connection hBaseConnection = getHBaseConnection();
-        System.out.println(hBaseConnection.toString());
-//        JSONObject jsonObj = getRow(hBaseConnection, Constant.HBASE_NAMESPACE, "port_strategy", "1", JSONObject.class);
-//        System.out.println(jsonObj);
-//        closeHBaseConnection(hBaseConnection);
+        JSONObject jsonObj = getRow(hBaseConnection, Constant.HBASE_NAMESPACE, "port_strategy", "1", JSONObject.class);
+        System.out.println(jsonObj);
+        closeHBaseConnection(hBaseConnection);
     }
 
 }
