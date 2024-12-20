@@ -1,6 +1,8 @@
 package com.bigdata.test;
 
-import com.bigdata.common.bean.Metric;
+import com.bigdata.common.bean.MetricPort;
+import com.bigdata.common.bean.Port;
+import com.bigdata.common.util.TimeUtil;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -8,10 +10,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 import com.alibaba.fastjson.JSON;
 
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class KafkaPortMetricProducer {
 
@@ -27,23 +26,26 @@ public class KafkaPortMetricProducer {
 
         try {
             while (true) {
+
                 // Create a Metric object
-                Metric metric = new Metric();
-                metric.setId(new Random().nextInt(100000));
-                metric.setTimestamp(System.currentTimeMillis());
+                MetricPort metric = new MetricPort();
+                metric.setId(UUID.randomUUID().toString());
                 metric.setCloudId(0);
                 metric.setIp("192.168.1.1");
-                List<String> list = new ArrayList<>();
-                list.add("11");
-                list.add("12");
-                list.add("13");
-                metric.setPorts(list);
+                metric.setTms(TimeUtil.getCurrentTms());
+                metric.setTime(TimeUtil.getCurrentTime());
+
+                List<Port> list = new ArrayList<>();
+                list.add(new Port(1, 3306));
+                list.add(new Port(1, 80));
+                list.add(new Port(1, 2181));
+                metric.setValue(list);
 
                 // Convert Metric object to JSON string using fastjson
                 String jsonString = JSON.toJSONString(metric);
 
                 // Create a producer record
-                ProducerRecord<String, String> record = new ProducerRecord<>("topic_port_strategy", jsonString);
+                ProducerRecord<String, String> record = new ProducerRecord<>("port_metric", jsonString);
 
                 // Send data - asynchronous
                 producer.send(record, (RecordMetadata metadata, Exception exception) -> {

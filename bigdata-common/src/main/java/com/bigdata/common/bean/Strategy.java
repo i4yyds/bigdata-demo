@@ -1,14 +1,16 @@
 package com.bigdata.common.bean;
 
-public class PortStrategy {
+public class Strategy {
 
     private Integer id;
+
+    private String strategyType;
 
     private Integer cloudId;
 
     private String ip;
 
-    private String port;
+    private String value;
 
     private String op;
 
@@ -18,6 +20,14 @@ public class PortStrategy {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getStrategyType() {
+        return strategyType;
+    }
+
+    public void setStrategyType(String strategyType) {
+        this.strategyType = strategyType;
     }
 
     public Integer getCloudId() {
@@ -36,12 +46,12 @@ public class PortStrategy {
         this.ip = ip;
     }
 
-    public String getPort() {
-        return port;
+    public String getValue() {
+        return value;
     }
 
-    public void setPort(String port) {
-        this.port = port;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public String getOp() {
@@ -52,24 +62,26 @@ public class PortStrategy {
         this.op = op;
     }
 
-    public PortStrategy() {
+    public Strategy() {
     }
 
-    public PortStrategy(Integer id, Integer cloudId, String ip, String port, String op) {
+    public Strategy(Integer id, String strategyType, Integer cloudId, String ip, String value, String op) {
         this.id = id;
+        this.strategyType = strategyType;
         this.cloudId = cloudId;
         this.ip = ip;
-        this.port = port;
+        this.value = value;
         this.op = op;
     }
 
     @Override
     public String toString() {
-        return "PortStrategy{" +
+        return "Strategy{" +
                 "id=" + id +
+                ", strategyType='" + strategyType + '\'' +
                 ", cloudId=" + cloudId +
                 ", ip='" + ip + '\'' +
-                ", port='" + port + '\'' +
+                ", value='" + value + '\'' +
                 ", op='" + op + '\'' +
                 '}';
     }

@@ -3,7 +3,7 @@ package com.bigdata.dim.app;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.bigdata.common.base.BaseApp;
-import com.bigdata.common.bean.PortStrategy;
+import com.bigdata.common.bean.Strategy;
 import com.bigdata.common.constant.Constant;
 import com.bigdata.common.util.FlinkSourceUtil;
 import com.bigdata.common.util.HBaseUtil;
@@ -11,19 +11,13 @@ import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.api.common.state.MapStateDescriptor;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.datastream.BroadcastConnectedStream;
-import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.hadoop.hbase.client.Connection;
-
-import java.util.List;
 
 /**
  * @author i4yyds
@@ -93,7 +87,7 @@ public class DimApp extends BaseApp {
         SingleOutputStreamOperator<JSONObject> jsonObjDS = etl(kafkaStrDS);
 
         //TODO 使用FlinkCDC读取配置表中的配置信息
-        SingleOutputStreamOperator<PortStrategy> tpDS = readTableProcess(env);
+        SingleOutputStreamOperator<Strategy> tpDS = readTableProcess(env);
 
         //TODO 根据配置表中的配置信息到HBase中执行建表或者删除表操作
         tpDS = createHBaseTable(tpDS);
@@ -127,9 +121,9 @@ public class DimApp extends BaseApp {
 //        return dimDS;
 //    }
 
-    private static SingleOutputStreamOperator<PortStrategy> createHBaseTable(SingleOutputStreamOperator<PortStrategy> tpDS) {
+    private static SingleOutputStreamOperator<Strategy> createHBaseTable(SingleOutputStreamOperator<Strategy> tpDS) {
         tpDS = tpDS.map(
-                new RichMapFunction<PortStrategy, PortStrategy>() {
+                new RichMapFunction<Strategy, Strategy>() {
 
                     private Connection hbaseConn;
 
@@ -144,11 +138,11 @@ public class DimApp extends BaseApp {
                     }
 
                     @Override
-                    public PortStrategy map(PortStrategy tp) throws Exception {
+                    public Strategy map(Strategy tp) throws Exception {
                         //获取对配置表进行的操作的类型
                         String op = tp.getOp();
                         //获取Hbase中维度表的表名
-                        String key = "port_monitor" + "-" + tp.getCloudId() + "-" + tp.getIp() + "-" + tp.getPort();
+                        String key = String.join("-", "port", tp.getCloudId().toString(), tp.getIp(), tp.getValue());
                         //获取在HBase中建表的列族
                         String[] value = "a".split(",");
                         if ("d".equals(op)) {
@@ -170,9 +164,9 @@ public class DimApp extends BaseApp {
         return tpDS;
     }
 
-    private static SingleOutputStreamOperator<PortStrategy> readTableProcess(StreamExecutionEnvironment env) {
+    private static SingleOutputStreamOperator<Strategy> readTableProcess(StreamExecutionEnvironment env) {
         //5.1 创建MySQLSource对象
-        MySqlSource<String> mySqlSource = FlinkSourceUtil.getMySqlSource("monitor", "port_strategy");
+        MySqlSource<String> mySqlSource = FlinkSourceUtil.getMySqlSource("monitor", "strategy");
         //5.2 读取数据 封装为流
         DataStreamSource<String> mysqlStrDS = env
                 .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "mysql_source")
@@ -187,23 +181,23 @@ public class DimApp extends BaseApp {
         //"op":"d": {"before":{"source_table":"a","sink_table":"a","sink_family":"a","sink_columns":"aaabbb","sink_row_key":"aa"},"after":null,"source":{"version":"1.9.7.Final","connector":"mysql","name":"mysql_binlog_source","ts_ms":1716812341000,"snapshot":"false","db":"gmall2024_config","sequence":null,"table":"table_process_dim","server_id":1,"gtid":null,"file":"mysql-bin.000002","pos":11424323,"row":0,"thread":14,"query":null},"op":"d","ts_ms":1716812340475,"transaction":null}
 
         //TODO 6.对配置流中的数据类型进行转换  jsonStr->实体类对象
-        SingleOutputStreamOperator<PortStrategy> tpDS = mysqlStrDS.map(
-                new MapFunction<String, PortStrategy>() {
+        SingleOutputStreamOperator<Strategy> tpDS = mysqlStrDS.map(
+                new MapFunction<String, Strategy>() {
                     @Override
-                    public PortStrategy map(String jsonStr) throws Exception {
+                    public Strategy map(String jsonStr) throws Exception {
                         //为了处理方便，先将jsonStr转换为jsonObj
                         JSONObject jsonObj = JSON.parseObject(jsonStr);
                         String op = jsonObj.getString("op");
-                        PortStrategy portStrategy = null;
+                        Strategy strategy = null;
                         if("d".equals(op)){
                             //对配置表进行了一次删除操作   从before属性中获取删除前的配置信息
-                            portStrategy = jsonObj.getObject("before", PortStrategy.class);
+                            strategy = jsonObj.getObject("before", Strategy.class);
                         }else{
                             //对配置表进行了读取、添加、修改操作   从after属性中获取最新的配置信息
-                            portStrategy = jsonObj.getObject("after", PortStrategy.class);
+                            strategy = jsonObj.getObject("after", Strategy.class);
                         }
-                        portStrategy.setOp(op);
-                        return portStrategy;
+                        strategy.setOp(op);
+                        return strategy;
                     }
                 }
         ).setParallelism(1);

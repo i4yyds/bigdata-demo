@@ -18,12 +18,13 @@ server-id=1
 mysql -u root -p
 建库表
 create database monitor;
-create table port_strategy
+create table strategy
 (
-    id       int auto_increment primary key,
-    cloud_id int         null,
-    ip       varchar(20) null,
-    port     varchar(20) null
+    id            int auto_increment primary key,
+    strategy_type varchar(100) not null,
+    cloud_id      int          null,
+    ip            varchar(20)  null,
+    value         varchar(50)  null
 );
 ```
 
@@ -42,11 +43,11 @@ docker exec -it kafka9092 /bin/bash
 查询
 kafka-topics.sh --bootstrap-server 192.168.200.193:9092 --list
 删除
-kafka-topics.sh --delete --zookeeper 192.168.200.193:2181 --topic topic_port_strategy
+kafka-topics.sh --delete --zookeeper 192.168.200.193:2181 --topic port_metric
 新增
-kafka-topics.sh --create --zookeeper 192.168.200.193:2181 --replication-factor 2 --partitions 1 --topic topic_port_strategy
+kafka-topics.sh --create --zookeeper 192.168.0.188:2181 --replication-factor 2 --partitions 1 --topic port_metric
 消费
-kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic topic_port_strategy --from-beginning
+kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic port_metric --from-beginning
 ```
 
 hbase
@@ -58,7 +59,7 @@ docker run -d -p 2182:2181 -p 8080:8080 -p 8085:8085 -p 9090:9090 -p 9095:9095 -
 本地IP和报错加入到 C:\Windows\System32\drivers\etc\hosts 192.168.200.193 7502efceaf8f
 使用
 hbase shell
-create_namespace "monitor"monitor"
+create_namespace "monitor"
 ```
 
 ## 安装
