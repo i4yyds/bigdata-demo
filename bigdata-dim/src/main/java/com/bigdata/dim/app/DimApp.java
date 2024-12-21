@@ -11,7 +11,11 @@ import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
+import org.apache.flink.api.common.state.MapStateDescriptor;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.BroadcastConnectedStream;
+import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -93,7 +97,7 @@ public class DimApp extends BaseApp {
         tpDS = createHBaseTable(tpDS);
 
 //        //TODO 过滤维度数据
-//        SingleOutputStreamOperator<Tuple2<JSONObject, PortStrategy>> dimDS = connect(tpDS, jsonObjDS);
+//        SingleOutputStreamOperator<Tuple2<JSONObject, Strategy>> dimDS = connect(tpDS, jsonObjDS);
 
 //        //TODO 将维度数据同步到HBase表中
 //        //({"tm_name":"Redmi","id":1,"type":"update"},TableProcessDim(sourceTable=base_trademark, sinkTable=dim_base_trademark, sinkColumns=id,tm_name, sinkFamily=info, sinkRowKey=id, op=r))
@@ -105,17 +109,17 @@ public class DimApp extends BaseApp {
 //        dimDS.addSink(new HBaseSinkFunction());
 //    }
 
-//    private static SingleOutputStreamOperator<Tuple2<JSONObject, PortStrategy>> connect(SingleOutputStreamOperator<PortStrategy> tpDS, SingleOutputStreamOperator<JSONObject> jsonObjDS) {
+//    private static SingleOutputStreamOperator<Tuple2<JSONObject, Strategy>> connect(SingleOutputStreamOperator<Strategy> tpDS, SingleOutputStreamOperator<JSONObject> jsonObjDS) {
 //        //将配置流中的配置信息进行广播---broadcast
-//        MapStateDescriptor<String, PortStrategy> mapStateDescriptor
-//                = new MapStateDescriptor<String, PortStrategy>("mapStateDescriptor",String.class, PortStrategy.class);
-//        BroadcastStream<PortStrategy> broadcastDS = tpDS.broadcast(mapStateDescriptor);
+//        MapStateDescriptor<String, Strategy> mapStateDescriptor
+//                = new MapStateDescriptor<String, Strategy>("mapStateDescriptor",String.class, Strategy.class);
+//        BroadcastStream<Strategy> broadcastDS = tpDS.broadcast(mapStateDescriptor);
 //
 //        //将主流业务数据和广播流配置信息进行关联---connect
-//        BroadcastConnectedStream<JSONObject, PortStrategy> connectDS = jsonObjDS.connect(broadcastDS);
+//        BroadcastConnectedStream<JSONObject, Strategy> connectDS = jsonObjDS.connect(broadcastDS);
 //
 //        //处理关联后的数据(判断是否为维度)
-//        SingleOutputStreamOperator<Tuple2<JSONObject, PortStrategy>> dimDS = connectDS.process(
+//        SingleOutputStreamOperator<Tuple2<JSONObject, Strategy>> dimDS = connectDS.process(
 //                new TableProcessFunction(mapStateDescriptor)
 //        );
 //        return dimDS;
