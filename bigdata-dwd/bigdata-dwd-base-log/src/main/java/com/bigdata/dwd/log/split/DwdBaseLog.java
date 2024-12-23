@@ -57,14 +57,14 @@ public class DwdBaseLog extends BaseApp {
         //TODO 对流中数据类型进行转换  并做简单的ETL
         SingleOutputStreamOperator<JSONObject> jsonObjDS = etl(kafkaStrDS);
 
-        //TODO 对新老访客标记进行修复
-        SingleOutputStreamOperator<JSONObject> fixedDS = fixedNewAndOld(jsonObjDS);
-
-        //TODO 分流   错误日志-错误侧输出流 启动日志-启动侧输出流 曝光日志-曝光侧输出流 动作日志-动作侧输出流     页面日志-主流
-        Map<String, DataStream<String>> streamMap = splitStream(fixedDS);
-
-        //TODO 将不同流的数据写到kafka的不同主题中
-        writeToKafka(streamMap);
+//        //TODO 对新老访客标记进行修复
+//        SingleOutputStreamOperator<JSONObject> fixedDS = fixedNewAndOld(jsonObjDS);
+//
+//        //TODO 分流   错误日志-错误侧输出流 启动日志-启动侧输出流 曝光日志-曝光侧输出流 动作日志-动作侧输出流     页面日志-主流
+//        Map<String, DataStream<String>> streamMap = splitStream(fixedDS);
+//
+//        //TODO 将不同流的数据写到kafka的不同主题中
+//        writeToKafka(streamMap);
 
     }
 
@@ -255,11 +255,11 @@ public class DwdBaseLog extends BaseApp {
                     }
                 }
         );
-        //jsonObjDS.print("标准的json:");
+        jsonObjDS.print("标准的json:");
         SideOutputDataStream<String> dirtyDS = jsonObjDS.getSideOutput(dirtyTag);
-        //dirtyDS.print("脏数据:");
+        dirtyDS.print("脏数据:");
         //将侧输出流中的脏数据写到kafka主题中
-        KafkaSink<String> kafkaSink = FlinkSinkUtil.getKafkaSink("dirty_data");
+        KafkaSink<String> kafkaSink = FlinkSinkUtil.getKafkaSink(Constant.TOPIC_DIRTY);
         dirtyDS.sinkTo(kafkaSink);
         return jsonObjDS;
     }

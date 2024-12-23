@@ -9,8 +9,10 @@ import org.apache.doris.flink.sink.DorisSink;
 import org.apache.doris.flink.sink.writer.serializer.SimpleStringSerializer;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import javax.annotation.Nullable;
@@ -30,12 +32,12 @@ public class FlinkSinkUtil {
                         .setTopic(topic)
                         .setValueSerializationSchema(new SimpleStringSchema())
                         .build())
-                //当前配置决定是否开启事务，保证写到kafka数据的精准一次
-                //.setDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
-                //设置事务Id的前缀
-                //.setTransactionalIdPrefix("dwd_base_log_")
-                //设置事务的超时时间   检查点超时时间 <     事务的超时时间 <=事务最大超时时间
-                //.setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG,15*60*1000+"")
+//                //当前配置决定是否开启事务，保证写到kafka数据的精准一次
+//                .setDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
+//                //设置事务Id的前缀
+//                .setTransactionalIdPrefix("dwd_base_log_")
+//                //设置事务的超时时间   检查点超时时间 <     事务的超时时间 <=事务最大超时时间
+//                .setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 15*60*1000+"")
                 .build();
         return kafkaSink;
     }

@@ -45,9 +45,12 @@ kafka-topics.sh --bootstrap-server 192.168.200.193:9092 --list
 删除
 kafka-topics.sh --delete --zookeeper 192.168.200.193:2181 --topic port_metric
 新增
-kafka-topics.sh --create --zookeeper 192.168.0.188:2181 --replication-factor 2 --partitions 1 --topic port_metric
+kafka-topics.sh --create --zookeeper 192.168.200.193:2181 --replication-factor 2 --partitions 1 --topic port_metric
+kafka-topics.sh --create --zookeeper 192.168.200.193:2181 --replication-factor 2 --partitions 1 --topic log_metric
+kafka-topics.sh --create --zookeeper 192.168.200.193:2181 --replication-factor 2 --partitions 1 --topic dirty_metric
 消费
 kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic port_metric --from-beginning
+kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic dirty_metric --from-beginning
 ```
 
 hbase
